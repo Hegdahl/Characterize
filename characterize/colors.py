@@ -1,23 +1,25 @@
 '''Color translation'''
 
-FG_COLORS = {
-    30:(0, 0, 0),        # Black
-    31:(170, 0, 0),      # Red
-    32:(0, 170, 0),      # Green
-    33:(170, 85, 0),     # Yellow
-    34:(0, 0, 170),      # Blue
-    35:(170, 0, 170),    # Magenta
-    36:(0, 170, 170),    # Cyan
-    37:(170, 170, 170),  # White
+FG_COLORS_NORMAL = {
+    30: (0, 0, 0),        # Black
+    31: (170, 0, 0),      # Red
+    32: (0, 170, 0),      # Green
+    33: (170, 85, 0),     # Yellow
+    34: (0, 0, 170),      # Blue
+    35: (170, 0, 170),    # Magenta
+    36: (0, 170, 170),    # Cyan
+    37: (170, 170, 170),  # White
+}
 
-    90: (85, 85, 85),    # Bright Black
-    91: (255, 85, 85),   # Bright Red
-    92: (85, 255, 85),   # Bright Green
-    93: (255, 255, 85),  # Bright Yellow
-    94: (85, 85, 255),   # Bright Blue
-    95: (255, 85, 255),  # Bright Magenta
-    96: (85, 255, 255),  # Bright Cyan
-    97: (255, 255, 255), # Bright White
+FG_COLORS_BRIGHT = {
+    30: (85, 85, 85),    # Black
+    31: (255, 85, 85),   # Red
+    32: (85, 255, 85),   # Green
+    33: (255, 255, 85),  # Yellow
+    34: (85, 85, 255),   # Blue
+    35: (255, 85, 255),  # Magenta
+    36: (85, 255, 255),  # Cyan
+    37: (255, 255, 255), # White
 }
 
 BG_COLORS = {
@@ -29,34 +31,32 @@ BG_COLORS = {
     45: (170, 0, 170),    # Magenta
     46: (0, 170, 170),    # Cyan
     47: (170, 170, 170),  # White
-
-    100: (85, 85, 85),    # Bright Black
-    101: (255, 85, 85),   # Bright Red
-    102: (85, 255, 85),   # Bright Green
-    103: (255, 255, 85),  # Bright Yellow
-    104: (85, 85, 255),   # Bright Blue
-    105: (255, 85, 255),  # Bright Magenta
-    106: (85, 255, 255),  # Bright Cyan
-    107: (255, 255, 255), # Bright White
 }
 
 def lerp(f, c1, c2):
     return tuple(int((1-f)*v1+f*v2) for v1,v2 in zip(c1, c2))
 
 def color_diff(c1, c2):
-    return sum((v1-v2)**2 for v1,v2 in zip(c1, c2))\
-        + (sum(c1)-sum(c2))**2/2
+    return sum((v1-v2)**2 for v1,v2 in zip(c1, c2))
 
 def color_diff_mono(c1, c2):
     return (sum(c1)-sum(c2))**2
 
 def make_palette(fgs, bgs, characters):
     palette = {}
+
     for fg in fgs:
         for bg in bgs:
             for char, frac in characters:
-                color = lerp(frac, FG_COLORS[fg], BG_COLORS[bg])
-                palette[color] = fg, bg, char
+                color = tuple(v/255 for v in lerp(frac, FG_COLORS_NORMAL[fg], BG_COLORS[bg]))
+                palette[color] = 0, fg, bg, char
+
+    for fg in fgs:
+        for bg in bgs:
+            for char, frac in characters:
+                color = tuple(v/255 for v in lerp(frac, FG_COLORS_BRIGHT[fg], BG_COLORS[bg]))
+                palette[color] = 1, fg, bg, char
+
     return palette
 
 def to_ansi(target, palette, diff_func):
@@ -68,5 +68,6 @@ def to_ansi(target, palette, diff_func):
             best_diff = diff
             best_ansi = ansi
 
-    fg, bg, char = best_ansi
-    return f'\033[{fg};{bg}m{char}\033[m'
+    style, fg, bg, char = best_ansi
+    #return f'{style};{fg};{bg};{char!r}'
+    return f'\033[{style};{fg};{bg}m{char}\033[m'

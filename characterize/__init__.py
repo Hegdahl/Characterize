@@ -11,15 +11,15 @@ from . import colors
 @click.option('-w', '--width', type=click.IntRange(0), default=128)
 @click.option('-h', '--height', type=click.IntRange(0), default=36)
 @click.option('-f', '--foregrounds',
-              default=','.join(tuple(map(str, range(30, 38)))+tuple(map(str, range(90, 98)))))
+              default=','.join(tuple(map(str, range(30, 38)))))
 @click.option('-b', '--backgrounds', 
-              default=','.join(tuple(map(str, range(40, 48)))+tuple(map(str, range(100, 108)))))
-@click.option('-c', '--characters', default=' :0.0,░:0.25,▒:0.5')
+              default=','.join(tuple(map(str, range(40, 48)))))
+@click.option('-c', '--characters', default='█:0,▓:0.25,▒:0.5,░:.75')
 @click.option('-m', '--mono-diff', default=False, is_flag=True)
-def main(image, width, height, foregrounds, backgrounds, characters, mono_diff):
+@click.option('--debug', default=False, is_flag=True)
+def main(image, width, height, foregrounds, backgrounds, characters, mono_diff, debug):
     img = np.array(Image.open(image).resize((width, height)))
-
-    print(foregrounds, backgrounds, characters)
+    img = img/255
 
     foregrounds = tuple(map(int, foregrounds.split(',')))
     backgrounds = tuple(map(int, backgrounds.split(',')))
