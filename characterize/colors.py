@@ -59,7 +59,7 @@ def make_palette(fgs, bgs, characters):
 
     return palette
 
-def to_ansi(target, palette, diff_func):
+def closest(target, palette, diff_func):
     best_diff = float('inf')
     best_ansi = None
     for color, ansi in palette.items():
@@ -68,6 +68,4 @@ def to_ansi(target, palette, diff_func):
             best_diff = diff
             best_ansi = ansi
 
-    style, fg, bg, char = best_ansi
-    #return f'{style};{fg};{bg};{char!r}'
-    return f'\033[{style};{fg};{bg}m{char}\033[m'
+    return best_ansi

@@ -8,6 +8,7 @@ setup(
     install_requires=[
         'click',
         'pillow',
+        'tqdm',
     ],
     description='Tool for creating console printable images using ANSI escapes.',
     project_urls={
